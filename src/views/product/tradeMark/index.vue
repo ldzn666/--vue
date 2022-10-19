@@ -1,22 +1,22 @@
 <template>
     <div>
-        <el-button 
-            type="primary" 
-            icon="el-icon-plus" 
-            style="margin:10px 0px"
-            @click="showDialog">添加</el-button>
-        <el-table 
-            style="width:100%"
-            border 
-            :data="list"
-            >
-            <el-table-column type="index" label="序号" align="center" width="80">
-
-            </el-table-column>
-            <el-table-column prop="tmName" label="品牌名称" width>
-                
-            </el-table-column>
-            <el-table-column prop="logoUrl" label="品牌LOGO" width>
+        <el-button type="primary" icon="el-icon-plus" style="margin:10px 0px" @click="showDialog">添加</el-button>
+        <el-dropdown style="float:right;margin: 20px 10px 5px 0;" trigger="click" :hide-on-click="false">
+            <el-button class="el-dropdown-link" type="warning" size="mini" icon="el-icon-collection-tag"></el-button>
+            <el-dropdown-menu slot="dropdown">
+                <el-scrollbar style="height:60vh">
+                    <el-checkbox-group v-model="checkView">
+                        <el-dropdown-item v-for="(item,index) in checkViewList" :key="index">
+                            <el-checkbox :label="item" :key="item"></el-checkbox>
+                        </el-dropdown-item>
+                    </el-checkbox-group>
+                </el-scrollbar>
+            </el-dropdown-menu>
+        </el-dropdown>
+        <el-table style="width:100%" border :data="list">
+            <el-table-column type="index" label="序号" align="center" width="80"></el-table-column>
+            <el-table-column v-if="viewListAttr[0].isHidden" prop="tmName" label="品牌名称" width></el-table-column>
+            <el-table-column v-if="viewListAttr[1].isHidden" prop="logoUrl" label="品牌LOGO" width>
                 <template slot-scope="{row,$index}">
                     <img :src="row.logUrl" style="width:100px;height:100px">
                 </template>
@@ -93,6 +93,12 @@ export default {
                 tmName:'',
                 logoUrl:''
             },
+            checkView:['品牌名称','品牌LOGO'],
+            checkViewList:['品牌名称','品牌LOGO'],
+            viewListAttr:[
+                {label:'品牌名称',isHidden:true},
+                {label:'品牌LOGO',isHidden:true}
+            ],
             rules:{
                 tmName: [
                     { required: true, message: '请输入品牌名称', trigger: 'blur' }, 
@@ -103,6 +109,21 @@ export default {
                 ],
             }
         };
+    },
+
+    watch:{
+        checkView(val){
+            if(val){
+                let arrView = this.checkViewList.filter(item => val.indexOf(item) < 0);
+                this.viewListAttr.map((item)=>{
+                    if(arrView.indexOf(item.label) !== -1){
+                        item.isHidden = false;
+                    }else{
+                        item.isHidden = true;
+                    }
+                })
+            }
+        }
     },
 
     mounted() {
